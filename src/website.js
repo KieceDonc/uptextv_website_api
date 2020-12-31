@@ -38,6 +38,7 @@ io.on('connection', (socket) => {
         getUserInfo(userID).then((userData)=>{
             socket.emit('callback_getUserInfo','done',userData)
         }).catch((err)=>{
+            console.log(err)
             socket.emit('callback_getUserInfo',err)
         })
     }
@@ -96,6 +97,7 @@ function onLogin(twitch_code,socket){
         })
     }).catch((err)=>{
         // normally not happening
+        console.log(err)
         socket.emit('callback_onLogin','err',err)
     })
 }
