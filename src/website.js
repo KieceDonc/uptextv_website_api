@@ -35,14 +35,14 @@ io.on('connection', (socket) => {
         onLogin(twitch_code,socket)
     })
 
-    socket.on('getUserInfo'),(userID)=>{
+    socket.on('getUserInfo',(userID)=>{
         getUserInfo(userID).then((userData)=>{
             socket.emit('callback_getUserInfo','done',userData)
         }).catch((err)=>{
             console.log(err)
             socket.emit('callback_getUserInfo',err)
         })
-    }
+    })
 });
 
 /**
