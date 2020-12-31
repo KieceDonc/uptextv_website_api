@@ -1,6 +1,6 @@
 
 const { MongoClient } = require("mongodb")
-const secret = require("secret")
+const secret = require("./secret")
 
 const mongodb_username = secret.getMongoDB_username()
 const mongodb_password = secret.getMongoDB_password()
