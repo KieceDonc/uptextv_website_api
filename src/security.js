@@ -33,8 +33,6 @@ function generate_token(){
   return token
 }
 
-
-
 function getRamdomLetter(){
   let upper_or_lower = randomIntFromInterval(0,1);
   let ascii_letter

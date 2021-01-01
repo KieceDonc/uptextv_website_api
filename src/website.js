@@ -1,9 +1,11 @@
 const express = require('express'); 
+const nodemailer = require('nodemailer')
 const fs = require('fs')
 const https = require('https')
 const twitch = require('./twitch')
 const database = require('./database')
 const security = require('./security');
+const secret = require('./secret');
 const domain="webapi.uptextv.com"
 const port = 443; 
 
@@ -41,6 +43,19 @@ io.on('connection', (socket) => {
         }).catch((err)=>{
             console.log(err)
             socket.emit('callback_getUserInfo',err)
+        })
+    })
+    
+    socket.on('onContact',(authorEmail,emailContent,emailSubject)=>{
+        onContact(authorEmail,emailContent,emailSubject)
+    })
+
+    socket.on('checkToken',(token)=>{
+        checkToken(token).then((isTokenValid)=>{
+            socket.emit('checkToken_callback','done',isTokenValid)
+        }).catch((err)=>{
+            console.log(err)
+            socket.emit('checkToken_callback',err)
         })
     })
 });
@@ -103,6 +118,10 @@ function onLogin(twitch_code,socket){
     })
 }
 
+/**
+ * Use to get userInformation from MongoDB
+ * @param {*} userID 
+ */
 function getUserInfo(userID){
     return new Promise((resolve,reject)=>{
         database.getUser(userID).then((userData)=>{
@@ -111,6 +130,38 @@ function getUserInfo(userID){
             reject(err)
         })
     })
+}
+
+/**
+ * An user is trying to contact
+ * We just send an email to valentinverst.developer@gmail.com
+ * @param {*} authorEmail 
+ * @param {*} emailSubject 
+ * @param {*} emailContent 
+ */
+function onContact(authorEmail,emailContent,emailSubject){
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: secret.getGmail_email(),
+          pass: secret.getGmail_password()
+        }
+    });
+      
+    let mailOptions = {
+        from: secret.getGmail_email(),
+        to: 'valentinverst.developer@gmail.com',
+        subject: emailSubject,
+        text: authorEmail+"\n\n"+emailContent
+    };
+    
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    }); 
 }
 
 /**
